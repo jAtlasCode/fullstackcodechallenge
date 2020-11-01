@@ -10,6 +10,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/restaurants", (req, res) => {
+  console.log("Client requested the Restaurant List!");
   res.send(restaurantList);
 });
 
