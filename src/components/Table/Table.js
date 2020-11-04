@@ -11,7 +11,8 @@ const api = "http://localhost:3001";
 export default function Table() {
   // stores default API response data
   const [data, setData] = useState("");
-  const [restaurantData, setRestaurantData] = useState("");
+  const [initSortedData, setInitSortedData] = useState("");
+  // const [restaurantData, setRestaurantData] = useState("");
   // stores data for table to render
   const [displayData, setDisplayData] = useState("");
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,7 @@ export default function Table() {
   const [sortedGenres, setSortedGenres] = useState("");
   const [statesSearchTerm, setStatesSearchTerm] = useState("");
   const [genresSearchTerm, setGenresSearchTerm] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
 
   // fetches restaurant data, sorts it, and sets state var to sorted restaurants
   const getRestaurantData = () => {
@@ -32,6 +34,7 @@ export default function Table() {
         if (response.status === 200) {
           data = response.data.data;
           setData(data);
+          setInitSortedData(data);
           // sort data alphabetically, uppercase to ensure consistency
           sortedData = data.sort((a, b) => {
             const itemA = a.name.toUpperCase();
@@ -56,6 +59,7 @@ export default function Table() {
 
   useEffect(() => {
     getRestaurantData();
+    function setPagination() {}
   }, []);
 
   const handleStatesSearch = (event) => {
@@ -97,6 +101,7 @@ export default function Table() {
     }
   }, [genresSearchTerm]);
 
+  // filter clearing event handlers
   const handleStateClear = () => {
     setStatesSearchTerm("");
   };
@@ -104,6 +109,45 @@ export default function Table() {
   const handleGenreClear = () => {
     setGenresSearchTerm("");
   };
+
+  const handlePageChange = (event) => {
+    setPageNumber(event.target.value);
+  };
+
+  // side effect to handle pagination
+  // todo: seems that .splice() is mutating the initDataObject
+  useEffect(() => {
+    // const maxItemsPerPage = 10;
+    let firstPage = [];
+    let secondPage = [];
+    let thirdPage = [];
+    let fourthPage = [];
+    if (pageNumber === "1") {
+      firstPage = initSortedData.splice(0, 10);
+      console.log(firstPage);
+      setDisplayData(firstPage);
+      setInitSortedData(data);
+    }
+    if (pageNumber === "2") {
+      secondPage = initSortedData.splice(10, 10);
+      console.log(secondPage);
+      setDisplayData(secondPage);
+      setInitSortedData(data);
+    }
+    if (pageNumber === "3") {
+      thirdPage = initSortedData.splice(20, 10);
+      console.log(thirdPage);
+      setDisplayData(thirdPage);
+      setInitSortedData(data);
+    }
+    if (pageNumber === "4") {
+      fourthPage = initSortedData.splice(30, 10);
+      console.log(fourthPage);
+      setDisplayData(fourthPage);
+      setInitSortedData(data);
+    }
+    console.log(pageNumber);
+  }, [pageNumber, initSortedData, data]);
 
   return (
     <>
@@ -148,6 +192,22 @@ export default function Table() {
                 <td>{row.genre}</td>
               </tr>
             ))}
+            <tr>
+              <td className="ButtonCell">
+                <button value="1" onClick={handlePageChange}>
+                  1
+                </button>
+                <button value="2" onClick={handlePageChange}>
+                  2
+                </button>
+                <button value="3" onClick={handlePageChange}>
+                  3
+                </button>
+                <button value="4" onClick={handlePageChange}>
+                  4
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
       )}

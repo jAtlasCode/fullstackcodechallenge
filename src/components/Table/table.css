@@ -8,3 +8,11 @@
   padding: 5px;
   
 }
+
+.ButtonCell {
+  display: flex;
+  width: 50%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  
+}
