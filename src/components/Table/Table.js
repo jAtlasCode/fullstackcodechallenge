@@ -58,40 +58,19 @@ export default function Table() {
     getRestaurantData();
   }, []);
 
-  const handleStateSort = () => {
-    let sorted;
-    sorted = restaurantData.sort((a, b) => {
-      const stateA = a.state.toUpperCase();
-      const stateB = b.state.toUpperCase();
-      return stateA < stateB ? -1 : stateA > stateB ? 1 : 0;
-    });
-    console.log(sorted);
-    setSortedStates(sorted);
-  };
-
-  const handleGenreSort = () => {
-    let sorted;
-    sorted = restaurantData.sort((a, b) => {
-      const genreA = a.genre.toUpperCase();
-      const genreB = b.genre.toUpperCase();
-      return genreA < genreB ? -1 : genreA > genreB ? 1 : 0;
-    });
-    console.log(sorted);
-    setSortedGenres(sorted);
-  };
-
   const handleStatesSearch = (event) => {
     setStatesSearchTerm(event.target.value.toUpperCase());
   };
 
+  // side effect to handle filtering states
   useEffect(() => {
     if (statesSearchTerm) {
       const results = data.filter((item) => {
-        console.log(item.state);
-        return item.state.toUpperCase() === statesSearchTerm;
+        return item.state
+          .toLowerCase()
+          .includes(statesSearchTerm.toLowerCase());
       });
 
-      console.log(results);
       setDisplayData(results);
     }
     if (!statesSearchTerm) {
@@ -103,27 +82,28 @@ export default function Table() {
     setGenresSearchTerm(event.target.value);
   };
 
+  // side effect for handling filtering by genres
   useEffect(() => {
     if (genresSearchTerm) {
       const results = data.filter((item) => {
-        console.log(item.state);
-        return item.genre.toUpperCase().includes(genresSearchTerm);
+        return item.genre
+          .toLowerCase()
+          .includes(genresSearchTerm.toLowerCase());
       });
       setDisplayData(results);
-      console.log(results);
     }
     if (!genresSearchTerm) {
       setDisplayData(data);
     }
   }, [genresSearchTerm]);
 
-  // useEffect(() => {
-  //   if (statesSearchTerm || genresSearchTerm === "") {
-  //     setDisplayData(data);
-  //   }
-  //   console.log(`state term => ${statesSearchTerm}`);
-  //   console.log(`genre term => ${genresSearchTerm}`);
-  // }, [statesSearchTerm, genresSearchTerm]);
+  const handleStateClear = () => {
+    setStatesSearchTerm("");
+  };
+
+  const handleGenreClear = () => {
+    setGenresSearchTerm("");
+  };
 
   return (
     <>
@@ -143,6 +123,7 @@ export default function Table() {
                   onChange={handleStatesSearch}
                   value={statesSearchTerm}
                 />
+                <button onClick={handleStateClear}>x</button>
               </th>
               <th>Phone #</th>
               <th>
@@ -153,6 +134,7 @@ export default function Table() {
                   onChange={handleGenresSearch}
                   value={genresSearchTerm}
                 />
+                <button onClick={handleGenreClear}>x</button>
               </th>
             </tr>
           </thead>
