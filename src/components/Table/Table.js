@@ -11,38 +11,37 @@ const api = "http://localhost:3001";
 export default function Table() {
   // stores default API response data
   const [data, setData] = useState("");
+  // stores Alphabetically sorted restaurant data
   const [initSortedData, setInitSortedData] = useState("");
-  // const [restaurantData, setRestaurantData] = useState("");
   // stores data for table to render
-  const [displayData, setDisplayData] = useState("");
+  const [displayData, setDisplayData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortedStates, setSortedStates] = useState("");
-  const [sortedGenres, setSortedGenres] = useState("");
   const [statesSearchTerm, setStatesSearchTerm] = useState("");
   const [genresSearchTerm, setGenresSearchTerm] = useState("");
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState("1");
 
   // fetches restaurant data, sorts it, and sets state var to sorted restaurants
-  const getRestaurantData = () => {
+  const getRestaurantData = async () => {
     let data;
     let sortedData;
     setLoading(true);
-    axios
+    await axios
       .get(`${api}/restaurants`)
       .then((response) => {
         console.log(response);
         if (response.status === 200) {
           data = response.data.data;
           setData(data);
-          setInitSortedData(data);
           // sort data alphabetically, uppercase to ensure consistency
           sortedData = data.sort((a, b) => {
             const itemA = a.name.toUpperCase();
             const itemB = b.name.toUpperCase();
             return itemA < itemB ? -1 : itemA > itemB ? 1 : 0;
           });
+          setInitSortedData(sortedData);
           console.log(sortedData);
-          setDisplayData(sortedData);
+          // populate table with first page
+          setDisplayData(sortedData.slice(0, 10));
         }
       })
       .then((error) => {
@@ -59,7 +58,6 @@ export default function Table() {
 
   useEffect(() => {
     getRestaurantData();
-    function setPagination() {}
   }, []);
 
   const handleStatesSearch = (event) => {
@@ -78,9 +76,9 @@ export default function Table() {
       setDisplayData(results);
     }
     if (!statesSearchTerm) {
-      setDisplayData(data);
+      setDisplayData(initSortedData.slice(0, 10));
     }
-  }, [statesSearchTerm]);
+  }, [statesSearchTerm, data, initSortedData]);
 
   const handleGenresSearch = (event) => {
     setGenresSearchTerm(event.target.value);
@@ -97,9 +95,9 @@ export default function Table() {
       setDisplayData(results);
     }
     if (!genresSearchTerm) {
-      setDisplayData(data);
+      setDisplayData(initSortedData.slice(0, 10));
     }
-  }, [genresSearchTerm]);
+  }, [genresSearchTerm, data, initSortedData]);
 
   // filter clearing event handlers
   const handleStateClear = () => {
@@ -114,40 +112,21 @@ export default function Table() {
     setPageNumber(event.target.value);
   };
 
-  // side effect to handle pagination
-  // todo: seems that .splice() is mutating the initDataObject
+  // set effect which handles pagination
   useEffect(() => {
-    // const maxItemsPerPage = 10;
-    let firstPage = [];
-    let secondPage = [];
-    let thirdPage = [];
-    let fourthPage = [];
     if (pageNumber === "1") {
-      firstPage = initSortedData.splice(0, 10);
-      console.log(firstPage);
-      setDisplayData(firstPage);
-      setInitSortedData(data);
+      setDisplayData(initSortedData.slice(0, 10));
     }
     if (pageNumber === "2") {
-      secondPage = initSortedData.splice(10, 10);
-      console.log(secondPage);
-      setDisplayData(secondPage);
-      setInitSortedData(data);
+      setDisplayData(initSortedData.slice(10, 20));
     }
     if (pageNumber === "3") {
-      thirdPage = initSortedData.splice(20, 10);
-      console.log(thirdPage);
-      setDisplayData(thirdPage);
-      setInitSortedData(data);
+      setDisplayData(initSortedData.slice(20, 30));
     }
     if (pageNumber === "4") {
-      fourthPage = initSortedData.splice(30, 10);
-      console.log(fourthPage);
-      setDisplayData(fourthPage);
-      setInitSortedData(data);
+      setDisplayData(initSortedData.slice(30, 40));
     }
-    console.log(pageNumber);
-  }, [pageNumber, initSortedData, data]);
+  }, [pageNumber, initSortedData]);
 
   return (
     <>
