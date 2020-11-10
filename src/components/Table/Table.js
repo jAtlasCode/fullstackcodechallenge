@@ -4,7 +4,7 @@ import "./table.css";
 const axios = require("axios");
 const api = "http://localhost:3001";
 
-// TODO: if filters return no values, indicate nothing matches search
+// TODO: improve pagination, instead of hard coded pages, make dynamic,
 export default function Table() {
   // stores default API response data
   const [data, setData] = useState("");
@@ -64,24 +64,28 @@ export default function Table() {
   };
 
   function handlePagination() {
-    if (pageNumber === "1") {
-      setDisplayData(initSortedData.slice(0, 10));
-    }
-    if (pageNumber === "2") {
-      setDisplayData(initSortedData.slice(10, 20));
-    }
-    if (pageNumber === "3") {
-      setDisplayData(initSortedData.slice(20, 30));
-    }
-    if (pageNumber === "4") {
-      setDisplayData(initSortedData.slice(30, 40));
+    switch (pageNumber) {
+      case "1":
+        setDisplayData(initSortedData.slice(0, 10));
+        break;
+      case "2":
+        setDisplayData(initSortedData.slice(10, 20));
+        break;
+      case "3":
+        setDisplayData(initSortedData.slice(20, 30));
+        break;
+      case "4":
+        setDisplayData(initSortedData.slice(30, 40));
+        break;
+      default:
+        setDisplayData(initSortedData.slice(0, 10));
     }
   }
 
   // side effect to handle filtering states
   useEffect(() => {
     if (stateFilter === true) {
-      const results = displayData.filter((item) => {
+      const results = initSortedData.filter((item) => {
         return item.state
           .toLowerCase()
           .includes(statesSearchTerm.toLowerCase());
@@ -107,7 +111,7 @@ export default function Table() {
   // side effect for handling filtering by genres
   useEffect(() => {
     if (genreFilter === true) {
-      const results = displayData.filter((item) => {
+      const results = initSortedData.filter((item) => {
         return item.genre
           .toLowerCase()
           .includes(genresSearchTerm.toLowerCase());
@@ -125,15 +129,6 @@ export default function Table() {
       setErrorMessage(false);
     }
   }, [genreFilter]);
-
-  // filter clearing event handlers
-  const handleStateClear = () => {
-    setStatesSearchTerm("");
-  };
-
-  const handleGenreClear = () => {
-    setGenresSearchTerm("");
-  };
 
   const handlePageChange = (event) => {
     setPageNumber(event.target.value);
@@ -167,7 +162,6 @@ export default function Table() {
                   id="stateFilter"
                   onChange={() => setStateFilter(stateFilter ? false : true)}
                 />
-                {/* <button onClick={handleStateClear}>x</button> */}
               </th>
               <th>Phone #</th>
               <th>
@@ -183,7 +177,6 @@ export default function Table() {
                   id="genreFilter"
                   onChange={() => setGenreFilter(genreFilter ? false : true)}
                 />
-                {/* <button onClick={handleGenreClear}>x</button> 8?} */}
               </th>
             </tr>
           </thead>
