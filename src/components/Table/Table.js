@@ -4,10 +4,7 @@ import "./table.css";
 const axios = require("axios");
 const api = "http://localhost:3001";
 
-// TODO: Add filters for state & genre
-// TODO: Add search field
-// TODO:
-
+// TODO: if filters return no values, indicate nothing matches search
 export default function Table() {
   // stores default API response data
   const [data, setData] = useState("");
@@ -17,9 +14,10 @@ export default function Table() {
   const [displayData, setDisplayData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statesSearchTerm, setStatesSearchTerm] = useState("");
+  const [stateFilter, setStateFilter] = useState(false);
   const [genresSearchTerm, setGenresSearchTerm] = useState("");
+  const [genreFilter, setGenreFilter] = useState(false);
   const [pageNumber, setPageNumber] = useState("1");
-
   // fetches restaurant data, sorts it, and sets state var to sorted restaurants
   const getRestaurantData = async () => {
     let data;
@@ -64,10 +62,25 @@ export default function Table() {
     setStatesSearchTerm(event.target.value.toUpperCase());
   };
 
+  function handlePagination() {
+    if (pageNumber === "1") {
+      setDisplayData(initSortedData.slice(0, 10));
+    }
+    if (pageNumber === "2") {
+      setDisplayData(initSortedData.slice(10, 20));
+    }
+    if (pageNumber === "3") {
+      setDisplayData(initSortedData.slice(20, 30));
+    }
+    if (pageNumber === "4") {
+      setDisplayData(initSortedData.slice(30, 40));
+    }
+  }
+
   // side effect to handle filtering states
   useEffect(() => {
-    if (statesSearchTerm) {
-      const results = data.filter((item) => {
+    if (stateFilter === true) {
+      const results = displayData.filter((item) => {
         return item.state
           .toLowerCase()
           .includes(statesSearchTerm.toLowerCase());
@@ -75,10 +88,11 @@ export default function Table() {
 
       setDisplayData(results);
     }
-    if (!statesSearchTerm) {
-      setDisplayData(initSortedData.slice(0, 10));
+    // when filter is removed, maintain current page
+    if (stateFilter === false) {
+      handlePagination();
     }
-  }, [statesSearchTerm, data, initSortedData]);
+  }, [stateFilter]);
 
   const handleGenresSearch = (event) => {
     setGenresSearchTerm(event.target.value);
@@ -86,18 +100,19 @@ export default function Table() {
 
   // side effect for handling filtering by genres
   useEffect(() => {
-    if (genresSearchTerm) {
-      const results = data.filter((item) => {
+    if (genreFilter === true) {
+      const results = displayData.filter((item) => {
         return item.genre
           .toLowerCase()
           .includes(genresSearchTerm.toLowerCase());
       });
       setDisplayData(results);
     }
-    if (!genresSearchTerm) {
-      setDisplayData(initSortedData.slice(0, 10));
+    // when filter is removed, maintain current page
+    if (genreFilter === false) {
+      handlePagination();
     }
-  }, [genresSearchTerm, data, initSortedData]);
+  }, [genreFilter]);
 
   // filter clearing event handlers
   const handleStateClear = () => {
@@ -114,19 +129,8 @@ export default function Table() {
 
   // set effect which handles pagination
   useEffect(() => {
-    if (pageNumber === "1") {
-      setDisplayData(initSortedData.slice(0, 10));
-    }
-    if (pageNumber === "2") {
-      setDisplayData(initSortedData.slice(10, 20));
-    }
-    if (pageNumber === "3") {
-      setDisplayData(initSortedData.slice(20, 30));
-    }
-    if (pageNumber === "4") {
-      setDisplayData(initSortedData.slice(30, 40));
-    }
-  }, [pageNumber, initSortedData]);
+    handlePagination();
+  }, [pageNumber]);
 
   return (
     <>
@@ -146,7 +150,12 @@ export default function Table() {
                   onChange={handleStatesSearch}
                   value={statesSearchTerm}
                 />
-                <button onClick={handleStateClear}>x</button>
+                <input
+                  type="checkbox"
+                  id="stateFilter"
+                  onChange={() => setStateFilter(stateFilter ? false : true)}
+                />
+                {/* <button onClick={handleStateClear}>x</button> */}
               </th>
               <th>Phone #</th>
               <th>
@@ -157,7 +166,12 @@ export default function Table() {
                   onChange={handleGenresSearch}
                   value={genresSearchTerm}
                 />
-                <button onClick={handleGenreClear}>x</button>
+                <input
+                  type="checkbox"
+                  id="genreFilter"
+                  onChange={() => setGenreFilter(genreFilter ? false : true)}
+                />
+                {/* <button onClick={handleGenreClear}>x</button> 8?} */}
               </th>
             </tr>
           </thead>
