@@ -18,6 +18,7 @@ export default function Table() {
   const [genresSearchTerm, setGenresSearchTerm] = useState("");
   const [genreFilter, setGenreFilter] = useState(false);
   const [pageNumber, setPageNumber] = useState("1");
+  const [errorMessage, setErrorMessage] = useState(false);
   // fetches restaurant data, sorts it, and sets state var to sorted restaurants
   const getRestaurantData = async () => {
     let data;
@@ -85,12 +86,17 @@ export default function Table() {
           .toLowerCase()
           .includes(statesSearchTerm.toLowerCase());
       });
-
-      setDisplayData(results);
+      // only display results if any were found, no results set error
+      if (results.length >= 1) {
+        setDisplayData(results);
+      } else {
+        setErrorMessage(true);
+      }
     }
     // when filter is removed, maintain current page
     if (stateFilter === false) {
       handlePagination();
+      setErrorMessage(false);
     }
   }, [stateFilter]);
 
@@ -106,11 +112,17 @@ export default function Table() {
           .toLowerCase()
           .includes(genresSearchTerm.toLowerCase());
       });
-      setDisplayData(results);
+      // only display results if any were found, no results set error
+      if (results.length >= 1) {
+        setDisplayData(results);
+      } else {
+        setErrorMessage(true);
+      }
     }
     // when filter is removed, maintain current page
     if (genreFilter === false) {
       handlePagination();
+      setErrorMessage(false);
     }
   }, [genreFilter]);
 
@@ -175,33 +187,41 @@ export default function Table() {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {displayData.map((row, index) => (
-              <tr key={row.id} index={index}>
-                <td>{row.name}</td>
-                <td>{row.city}</td>
-                <td>{row.state}</td>
-                <td>{row.telephone}</td>
-                <td>{row.genre}</td>
+          {errorMessage ? (
+            <tbody>
+              <tr>
+                <td colSpan="5">No results for this filter...</td>
               </tr>
-            ))}
-            <tr>
-              <td className="ButtonCell">
-                <button value="1" onClick={handlePageChange}>
-                  1
-                </button>
-                <button value="2" onClick={handlePageChange}>
-                  2
-                </button>
-                <button value="3" onClick={handlePageChange}>
-                  3
-                </button>
-                <button value="4" onClick={handlePageChange}>
-                  4
-                </button>
-              </td>
-            </tr>
-          </tbody>
+            </tbody>
+          ) : (
+            <tbody>
+              {displayData.map((row, index) => (
+                <tr key={row.id} index={index}>
+                  <td>{row.name}</td>
+                  <td>{row.city}</td>
+                  <td>{row.state}</td>
+                  <td>{row.telephone}</td>
+                  <td>{row.genre}</td>
+                </tr>
+              ))}
+              <tr>
+                <td className="ButtonCell">
+                  <button value="1" onClick={handlePageChange}>
+                    1
+                  </button>
+                  <button value="2" onClick={handlePageChange}>
+                    2
+                  </button>
+                  <button value="3" onClick={handlePageChange}>
+                    3
+                  </button>
+                  <button value="4" onClick={handlePageChange}>
+                    4
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          )}
         </table>
       )}
     </>
